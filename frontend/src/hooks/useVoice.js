@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 export function useVoice() {
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [speechEnabled, setSpeechEnabled] = useState(true)
   const [transcript, setTranscript] = useState('')
   const [supported, setSupported] = useState(false)
   const recognitionRef = useRef(null)
@@ -14,7 +15,7 @@ export function useVoice() {
       setSupported(true)
       const recognition = new SpeechRecognition()
       recognition.continuous = false
-      recognition.interimResults = false
+      recognition.interimResults = false          // ← FIXED: removed stray text
       recognition.lang = 'en-US'
 
       recognition.onresult = (e) => {
@@ -61,9 +62,33 @@ export function useVoice() {
     setIsSpeaking(false)
   }, [])
 
+  const toggleMic = useCallback(() => {
+    if (isListening) stopListening()
+    else startListening()
+  }, [isListening, startListening, stopListening])
+
+  const toggleSpeech = useCallback(() => {
+    setSpeechEnabled(prev => {
+      if (prev) {
+        synthRef.current?.cancel()
+        setIsSpeaking(false)
+      }
+      return !prev
+    })
+  }, [])
+
   return {
-    isListening, isSpeaking, transcript, supported,
-    startListening, stopListening, speak, stopSpeaking,
-    setTranscript
+    isListening,
+    isSpeaking,
+    speechEnabled,
+    transcript,
+    supported,
+    startListening,
+    stopListening,
+    speak,
+    stopSpeaking,
+    setTranscript,
+    toggleMic,
+    toggleSpeech,
   }
 }

@@ -1,199 +1,99 @@
-import { useState, useRef } from 'react'
-import { ChatProvider, useChat } from './store/ChatContext'
+import { useContext, useEffect } from 'react'
+import { ChatContext } from './store/ChatContext'
+import { useVoice } from './hooks/useVoice'
+import AssistantAvatar from './components/AssistantAvatar'
+import ChatSidebar from './components/ChatSidebar'
+import VoiceControls from './components/VoiceControls'
 import Navbar from './components/Navbar'
-import ChatWindow from './components/ChatWindow'
-import KnowledgePanel from './components/KnowledgePanel'
+import './index.css'
 
-function VoiceMic({ onTranscript }) {
-  const [isListening, setIsListening] = useState(false)
-  const [status, setStatus] = useState('')
+export default function App() {
+  const { messages, loading, sendMessage, clearChat, images, sources } = useContext(ChatContext)
+  const {
+    isListening, isSpeaking, speechEnabled,
+    toggleMic, toggleSpeech, stopSpeaking,
+    transcript, setTranscript, speak
+  } = useVoice()
 
-  const handleClick = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      setStatus('Not supported')
-      return
+  useEffect(() => {
+    if (!speechEnabled) return
+    const last = messages[messages.length - 1]
+    if (last?.role === 'assistant' && last.content) {
+      speak(last.content)
     }
+  }, [messages])
 
-    if (isListening) {
-      setIsListening(false)
-      setStatus('')
-      return
+  useEffect(() => {
+    if (transcript?.trim()) {
+      sendMessage(transcript.trim())
+      setTranscript('')
     }
+  }, [transcript])
 
-    const r = new SpeechRecognition()
-    r.lang = 'en-US'
-    r.continuous = false
-    r.interimResults = false
-
-    r.onstart = () => { setIsListening(true); setStatus('Listening...') }
-
-    r.onresult = (e) => {
-      const text = e.results[0][0].transcript
-      console.log('Voice text:', text)
-      setIsListening(false)
-      setStatus('✅ ' + text)
-      setTimeout(() => setStatus(''), 2000)
-      onTranscript(text)
-    }
-
-    r.onerror = (e) => {
-      console.error('Voice error:', e.error)
-      setIsListening(false)
-      setStatus('Error: ' + e.error)
-      setTimeout(() => setStatus(''), 3000)
-    }
-
-    r.onend = () => { setIsListening(false) }
-
-    r.start()
-  }
-
-  return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <button
-        onClick={handleClick}
-        style={{
-          width: '42px', height: '42px', borderRadius: '12px',
-          background: isListening ? 'rgba(239,68,68,0.25)' : 'rgba(55,65,81,0.8)',
-          border: isListening ? '2px solid #EF4444' : '1px solid #374151',
-          cursor: 'pointer', fontSize: '20px',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: isListening ? '0 0 20px rgba(239,68,68,0.5)' : 'none',
-          transition: 'all 0.2s'
-        }}
-      >
-        {isListening ? '🔴' : '🎤'}
-      </button>
-      {status && (
-        <div style={{
-          position: 'absolute', bottom: '-28px', left: '50%',
-          transform: 'translateX(-50%)', whiteSpace: 'nowrap',
-          fontSize: '11px', color: '#10B981',
-          background: 'rgba(17,24,39,0.95)', padding: '2px 8px',
-          borderRadius: '6px', border: '1px solid #374151', zIndex: 100
-        }}>
-          {status}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function ChatLayout() {
-  const { sendMessage, loading } = useChat()
-  const [input, setInput] = useState('')
-  const textareaRef = useRef(null)
-
-  const handleSend = () => {
-    if (!input.trim() || loading) return
-    sendMessage(input.trim())
-    setInput('')
-    if (textareaRef.current) textareaRef.current.style.height = 'auto'
-  }
-
-  const handleKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
-
-  const handleVoice = (text) => {
-    console.log('Sending voice message:', text)
-    if (text && text.trim()) {
-      sendMessage(text.trim())
-    }
-  }
+  const assistantState = isListening ? 'listening' : isSpeaking ? 'speaking' : loading ? 'thinking' : 'idle'
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#0B0F19',
-      color: 'white', display: 'flex', flexDirection: 'column'
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      width: '100vw',
+      background: 'radial-gradient(ellipse at 30% 20%, rgba(0,180,216,0.07) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(124,58,237,0.07) 0%, transparent 60%), #050d1a',
+      overflow: 'hidden',
     }}>
-      <Navbar />
+
+      <Navbar onClear={clearChat} />
+
+      {/* Main area */}
       <div style={{
-        display: 'flex', marginTop: '60px',
-        height: 'calc(100vh - 60px)', overflow: 'hidden'
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '40px',
+        padding: '20px 32px',
+        overflow: 'hidden',
       }}>
-        {/* Chat 70% */}
+
+        {/* LEFT — Avatar + name + voice controls stacked */}
         <div style={{
-          width: '70%', display: 'flex',
-          flexDirection: 'column', borderRight: '1px solid #374151'
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '20px',
+          flexShrink: 0,
         }}>
-          <ChatWindow />
+          <AssistantAvatar state={assistantState} />
 
-          {/* Input Box */}
-          <div style={{
-            padding: '16px', borderTop: '1px solid #374151',
-            background: '#0B0F19'
-          }}>
-            <div style={{
-              display: 'flex', alignItems: 'flex-end', gap: '10px',
-              background: 'rgba(31,41,55,0.8)', border: '1px solid #374151',
-              borderRadius: '16px', padding: '12px 16px'
-            }}>
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value)
-                  e.target.style.height = 'auto'
-                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
-                }}
-                onKeyDown={handleKey}
-                placeholder="Ask anything about Metaverse911..."
-                rows={1}
-                disabled={loading}
-                style={{
-                  flex: 1, background: 'transparent', border: 'none',
-                  outline: 'none', color: 'white', fontSize: '14px',
-                  resize: 'none', lineHeight: '1.5', maxHeight: '120px',
-                  fontFamily: 'Inter, sans-serif', opacity: loading ? 0.5 : 1
-                }}
-              />
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                <VoiceMic onTranscript={handleVoice} />
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim() || loading}
-                  style={{
-                    width: '42px', height: '42px', borderRadius: '12px',
-                    background: input.trim() && !loading
-                      ? 'linear-gradient(135deg, #3B82F6, #6366F1)' : '#374151',
-                    border: 'none',
-                    cursor: input.trim() && !loading ? 'pointer' : 'not-allowed',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '18px', transition: 'all 0.2s',
-                    boxShadow: input.trim() && !loading ? '0 0 20px rgba(59,130,246,0.4)' : 'none'
-                  }}
-                >
-                  {loading ? '⏳' : '➤'}
-                </button>
-              </div>
-            </div>
-            <p style={{
-              textAlign: 'center', fontSize: '11px',
-              color: '#4B5563', marginTop: '8px'
-            }}>
-              M911 Copilot answers only from Metaverse911 knowledge base
-            </p>
-          </div>
+          {/* Voice controls directly below name tag */}
+          <VoiceControls
+            isListening={isListening}
+            isSpeaking={isSpeaking}
+            speechEnabled={speechEnabled}
+            toggleMic={toggleMic}
+            toggleSpeech={toggleSpeech}
+            stopSpeaking={stopSpeaking}
+            onClear={clearChat}
+          />
         </div>
 
-        {/* Knowledge Panel 30% */}
-        <div style={{ width: '30%', background: '#111827', overflowY: 'auto' }}>
-          <KnowledgePanel />
+        {/* RIGHT — Chat sidebar */}
+        <div style={{
+          flex: '0 0 380px',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+        }}>
+          <ChatSidebar
+            messages={messages}
+            loading={loading}
+            images={images}
+            sources={sources}
+            onSend={sendMessage}
+          />
         </div>
+
       </div>
     </div>
-  )
-}
-
-export default function App() {
-  return (
-    <ChatProvider>
-      <ChatLayout />
-    </ChatProvider>
   )
 }

@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional
 import uvicorn
+import os
 
 from app.config import config
 from app.services.rag import rag_service
@@ -24,6 +26,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# Static files — images serve karne ke liye
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # ── Request Models ──────────────────────────────────────────
 class ChatRequest(BaseModel):
@@ -46,7 +53,6 @@ async def health():
         "chunks_in_db": rag_service.chroma.get_count()
     }
 
-
 @app.post("/chat")
 async def chat(request: ChatRequest):
     if not request.question or not request.question.strip():
@@ -54,16 +60,12 @@ async def chat(request: ChatRequest):
 
     question = request.question.strip()
 
-    # Prompt injection guard
     blocked = ["ignore previous", "forget instructions", "system prompt", "jailbreak", "act as"]
     for phrase in blocked:
         if phrase in question.lower():
             raise HTTPException(status_code=400, detail="Invalid input detected")
 
-    # RAG query
     result = await rag_service.query(question)
-
-    # Get related images
     image_result = image_service.get_images_for_query(question)
 
     return {
@@ -74,11 +76,9 @@ async def chat(request: ChatRequest):
         "chunks_found": result["chunks_found"]
     }
 
-
 @app.post("/voice-query")
 async def voice_query(request: ChatRequest):
     return await chat(request)
-
 
 @app.get("/related-image")
 async def related_image(query: str):
@@ -87,14 +87,12 @@ async def related_image(query: str):
     result = image_service.get_images_for_query(query)
     return result
 
-
 @app.get("/conversation-history")
 async def conversation_history(session_id: Optional[str] = "default"):
     return {
         "session_id": session_id,
         "history": conversation_store.get(session_id, [])
     }
-
 
 @app.post("/scrape-website")
 async def scrape_website(request: ScrapeRequest):
@@ -110,7 +108,6 @@ async def scrape_website(request: ScrapeRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/refresh-knowledge-base")
 async def refresh_knowledge_base():
     try:
@@ -118,7 +115,6 @@ async def refresh_knowledge_base():
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=config.DEBUG)

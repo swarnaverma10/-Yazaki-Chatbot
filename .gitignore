@@ -1,17 +1,82 @@
-# Environment files - API keys
-backend/.env
-frontend/.env
+# ── Environment & Secrets ────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
 
-# Python cache
+# ── Python ───────────────────────────────────────────────────
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-
-# Data folder
-backend/data/
-
-# Node modules
-node_modules/
-
-# Build folder
+*.pyd
+*.pyc
+.Python
+*.egg
+*.egg-info/
 dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+*.so
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# ── ChromaDB / Vector Store ───────────────────────────────────
+backend/data/
+data/chroma_store/
+*.chroma
+chroma.sqlite3
+
+# ── ML Models / Embeddings Cache ─────────────────────────────
+*.bin
+*.safetensors
+*.onnx
+.cache/
+backend/.cache/
+sentence_transformers/
+huggingface/
+
+# ── Node / Frontend ──────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.npm/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Vite ─────────────────────────────────────────────────────
+frontend/.vite/
+.vite/
+
+# ── Images Cache ─────────────────────────────────────────────
+backend/app/services/images_cache.json
+backend/static/images/
+
+# ── OS Files ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# ── IDE ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.iml
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
