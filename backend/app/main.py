@@ -117,4 +117,5 @@ async def refresh_knowledge_base():
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=config.DEBUG)
+  import os
+uvicorn.run("app.main:app", host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), reload=False)
