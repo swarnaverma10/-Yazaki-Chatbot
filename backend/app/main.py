@@ -31,7 +31,11 @@ app.add_middleware(
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(static_dir, exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
-
+# ── Startup Event ──────────────────────────────────────────  ← YE YAHAN ADD KARO
+@app.on_event("startup")
+async def startup_event():
+    if rag_service.chroma.get_count() == 0:
+        await rag_service.refresh_knowledge_base()
 # ── Request Models ──────────────────────────────────────────
 class ChatRequest(BaseModel):
     question: str
