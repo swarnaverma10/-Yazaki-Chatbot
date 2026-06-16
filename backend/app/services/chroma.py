@@ -69,6 +69,9 @@ class ChromaService:
         print("ChromaDB collection cleared")
 
     def get_count(self):
+        try:
         return self.collection.count()
+    except Exception:
+        return 0
 
 chroma_service = ChromaService()
