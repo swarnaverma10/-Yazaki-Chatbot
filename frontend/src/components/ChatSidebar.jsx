@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import InputBox from './InputBox'
-import ProductImageGrid from './ProductImageGrid'
 
 function renderMarkdown(text) {
   if (!text) return ''
@@ -45,46 +44,27 @@ function Message({ msg }) {
   )
 }
 
-export default function ChatSidebar({ messages, loading, images, sources, onSend }) {
+export default function ChatSidebar({ messages, loading, onSend }) {
   const bottomRef = useRef(null)
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, loading, images])
+  }, [messages, loading])
 
   return (
     <motion.div
-      animate={{ width: collapsed ? 48 : 380 }}
+      animate={{ width: collapsed ? 48 : '100%' }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      style={{
-        height: 'calc(100vh - 140px)',
-        background: 'rgba(10, 22, 40, 0.6)',
-        backdropFilter: 'blur(24px)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
-        flexShrink: 0,
-      }}
+      className="chat-sidebar"
     >
       {/* Header */}
-      <div style={{
-        padding: '14px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexShrink: 0,
-      }}>
+      <div className="chat-sidebar-header">
         {!collapsed && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{
               width: 8, height: 8, borderRadius: '50%',
-              background: '#00e5ff',
-              boxShadow: '0 0 8px #00e5ff',
+              background: '#00e5ff', boxShadow: '0 0 8px #00e5ff',
             }} />
             <span style={{
               fontSize: 12, fontWeight: 600, color: '#8899aa',
@@ -96,12 +76,8 @@ export default function ChatSidebar({ messages, loading, images, sources, onSend
         )}
         <button
           onClick={() => setCollapsed(c => !c)}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: '#8899aa', fontSize: 18, padding: '2px 6px',
-            marginLeft: collapsed ? 'auto' : 0,
-            lineHeight: 1,
-          }}
+          className="collapse-btn"
+          style={{ marginLeft: collapsed ? 'auto' : 0 }}
         >
           {collapsed ? '›' : '‹'}
         </button>
@@ -119,14 +95,13 @@ export default function ChatSidebar({ messages, loading, images, sources, onSend
           >
             {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '14px 12px' }}>
-
               {messages.length === 0 && (
                 <div style={{
                   textAlign: 'center', color: '#445566',
                   fontSize: 13, marginTop: 60, lineHeight: 1.8,
                 }}>
                   <div style={{ fontSize: 28, marginBottom: 12 }}>💬</div>
-                  Ask me anything about<br />Metaverse911
+                  Ask me anything about<br />Domestic Travel Policy
                 </div>
               )}
 
@@ -134,59 +109,21 @@ export default function ChatSidebar({ messages, loading, images, sources, onSend
                 <Message key={m.id || i} msg={m} />
               ))}
 
-              {/* Loading dots */}
               {loading && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  style={{
-                    display: 'flex', gap: 5,
-                    padding: '8px 14px', alignItems: 'center',
-                  }}
+                  style={{ display: 'flex', gap: 5, padding: '8px 14px', alignItems: 'center' }}
                 >
                   {[0, 0.15, 0.3].map((d, i) => (
                     <motion.div
                       key={i}
                       animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }}
                       transition={{ duration: 0.8, repeat: Infinity, delay: d }}
-                      style={{
-                        width: 7, height: 7, borderRadius: '50%',
-                        background: '#00e5ff',
-                      }}
+                      style={{ width: 7, height: 7, borderRadius: '50%', background: '#00e5ff' }}
                     />
                   ))}
                 </motion.div>
-              )}
-
-              {/* Product images */}
-              {images?.length > 0 && (
-                <ProductImageGrid images={images} />
-              )}
-
-              {/* Sources */}
-              {sources?.length > 0 && (
-                <div style={{
-                  margin: '10px 0',
-                  padding: '10px 12px',
-                  background: 'rgba(0,229,255,0.05)',
-                  borderRadius: 10,
-                  border: '1px solid rgba(0,229,255,0.1)',
-                }}>
-                  <div style={{
-                    fontSize: 11, color: '#00e5ff',
-                    fontWeight: 600, marginBottom: 6,
-                    letterSpacing: '0.08em',
-                  }}>
-                    KNOWLEDGE SOURCES
-                  </div>
-                  {sources.map((s, i) => (
-                    <div key={i} style={{
-                      fontSize: 11, color: '#8899aa', marginTop: 4,
-                    }}>
-                      📄 {typeof s === 'string' ? s : s.source || s.filename || s.name || JSON.stringify(s)}
-                    </div>
-                  ))}
-                </div>
               )}
 
               <div ref={bottomRef} />

@@ -32,7 +32,213 @@ html, body, #root {
   color: var(--text-primary);
 }
 
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* ─── App Root ─── */
+.app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(0,180,216,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(124,58,237,0.07) 0%, transparent 60%),
+    #050d1a;
+  overflow: hidden;
+}
+
+/* ─── Main Area ─── */
+.main-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 20px 32px;
+  overflow: hidden;
+}
+
+/* ─── Avatar Section ─── */
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.avatar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar-frame {
+  width: 220px;
+  height: 340px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background: #0a1628;
+}
+
+.avatar-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f0f4f8;
+  letter-spacing: 0.02em;
+}
+
+.avatar-subtitle {
+  font-size: 12px;
+  color: #00e5ff;
+  opacity: 0.75;
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* ─── Chat Section ─── */
+.chat-section {
+  flex: 0 0 380px;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* ─── Chat Sidebar ─── */
+.chat-sidebar {
+  height: calc(100vh - 140px);
+  background: rgba(10, 22, 40, 0.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+
+.chat-sidebar-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #8899aa;
+  font-size: 18px;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+/* ─── TABLET (768px - 1024px) ─── */
+@media (max-width: 1024px) {
+  .main-area {
+    gap: 24px;
+    padding: 16px 20px;
+  }
+
+  .avatar-frame {
+    width: 180px;
+    height: 280px;
+  }
+
+  .avatar-name {
+    font-size: 16px;
+  }
+
+  .chat-section {
+    flex: 0 0 320px;
+  }
+}
+
+/* ─── MOBILE (max 768px) ─── */
+@media (max-width: 768px) {
+  html, body, #root {
+    overflow: auto;
+  }
+
+  .app-root {
+    overflow: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .main-area {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 12px 12px;
+    overflow: visible;
+    height: auto;
+  }
+
+  .avatar-section {
+    gap: 12px;
+    width: 100%;
+    padding-top: 4px;
+  }
+
+  .avatar-frame {
+    width: 140px;
+    height: 210px;
+    border-radius: 16px;
+  }
+
+  .avatar-name {
+    font-size: 15px;
+  }
+
+  .avatar-subtitle {
+    font-size: 11px;
+  }
+
+  .chat-section {
+    flex: none;
+    width: 100%;
+    height: auto;
+    align-items: stretch;
+  }
+
+  .chat-sidebar {
+    height: 55vh;
+    width: 100% !important; /* override framer-motion inline width */
+    border-radius: 16px;
+  }
+
+  /* Hide collapse button on mobile — sidebar always full width */
+  .collapse-btn {
+    display: none;
+  }
+}
+
+/* ─── SMALL MOBILE (max 400px) ─── */
+@media (max-width: 400px) {
+  .avatar-frame {
+    width: 120px;
+    height: 180px;
+  }
+
+  .main-area {
+    padding: 8px;
+    gap: 12px;
+  }
+
+  .chat-sidebar {
+    height: 52vh;
+  }
+}

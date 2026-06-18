@@ -18,10 +18,10 @@ export default function Navbar({ onClear }) {
           background: 'linear-gradient(135deg, #00e5ff, #7c3aed)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 14, fontWeight: 700, color: '#fff',
-        }}>M</div>
+        }}>Y</div>
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#f0f4f8', letterSpacing: '0.02em' }}>
-            Metaverse911
+            Yazaki
           </div>
           <div style={{ fontSize: 11, color: '#00e5ff', opacity: 0.7 }}>AI Copilot</div>
         </div>

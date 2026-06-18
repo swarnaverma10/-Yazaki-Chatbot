@@ -7,7 +7,7 @@ class RAGService:
         self.chroma = chroma_service
         self.llm = openrouter_service
         self.min_chunks = 1
-        self.top_k = 3
+        self.top_k = 5
 
     def build_context(self, chunks: list) -> str:
         if not chunks:
@@ -19,7 +19,7 @@ class RAGService:
             )
         return "\n\n---\n\n".join(context_parts)
 
-    def is_relevant(self, chunks: list, threshold: float = 0.85) -> bool:
+    def is_relevant(self, chunks: list, threshold: float = 1.0) -> bool:
         if not chunks:
             return False
         best_distance = min(c.get("distance", 1.0) for c in chunks)
@@ -34,14 +34,14 @@ class RAGService:
 
         if not chunks:
             return {
-                "answer": "I couldn't find relevant information in the Metaverse911 knowledge base.",
+                "answer": "I'm sorry, I couldn't find relevant information in the Domestic Travel Policy. Please try asking something related to travel entitlements, lodging, boarding, per diem, or reimbursement policies.",
                 "sources": [],
                 "chunks_found": 0
             }
 
         if not self.is_relevant(chunks):
             return {
-                "answer": "I couldn't find closely matching information. Please try rephrasing your question.",
+                "answer": "I'm sorry, your question doesn't seem to be covered in the Domestic Travel Policy document. You can ask me about travel modes, lodging limits, per diem allowances, reimbursement rules, or GST guidelines.",
                 "sources": [],
                 "chunks_found": len(chunks)
             }
@@ -57,7 +57,6 @@ class RAGService:
         }
 
     async def add_pdf(self, file) -> dict:
-        """PDF file se chunks banao aur ChromaDB mein insert karo"""
         import io
         try:
             from pypdf import PdfReader
@@ -74,7 +73,6 @@ class RAGService:
             if len(text) < 50:
                 continue
 
-            # Chunk into 500-word pieces
             words = text.split()
             for i in range(0, len(words), 450):
                 chunk_text = " ".join(words[i:i+500])
@@ -87,7 +85,7 @@ class RAGService:
                     })
 
         if not chunks:
-            return {"status": "error", "message": "PDF mein koi readable text nahi mila"}
+           return {"status": "error", "message": "No readable text found in the knowledge base."}
 
         self.chroma.insert_chunks(chunks)
 

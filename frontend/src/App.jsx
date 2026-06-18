@@ -33,39 +33,13 @@ export default function App() {
   const assistantState = isListening ? 'listening' : isSpeaking ? 'speaking' : loading ? 'thinking' : 'idle'
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
-      width: '100vw',
-      background: 'radial-gradient(ellipse at 30% 20%, rgba(0,180,216,0.07) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(124,58,237,0.07) 0%, transparent 60%), #050d1a',
-      overflow: 'hidden',
-    }}>
-
+    <div className="app-root">
       <Navbar onClear={clearChat} />
 
-      {/* Main area */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '40px',
-        padding: '20px 32px',
-        overflow: 'hidden',
-      }}>
-
-        {/* LEFT — Avatar + name + voice controls stacked */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '20px',
-          flexShrink: 0,
-        }}>
+      <div className="main-area">
+        {/* LEFT — Avatar + Voice Controls */}
+        <div className="avatar-section">
           <AssistantAvatar state={assistantState} />
-
-          {/* Voice controls directly below name tag */}
           <VoiceControls
             isListening={isListening}
             isSpeaking={isSpeaking}
@@ -77,22 +51,16 @@ export default function App() {
           />
         </div>
 
-        {/* RIGHT — Chat sidebar */}
-        <div style={{
-          flex: '0 0 380px',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-        }}>
+        {/* RIGHT — Chat */}
+        <div className="chat-section">
           <ChatSidebar
             messages={messages}
             loading={loading}
-            images={images}
-            sources={sources}
+            images={[]}
+            sources={[]}
             onSend={sendMessage}
           />
         </div>
-
       </div>
     </div>
   )

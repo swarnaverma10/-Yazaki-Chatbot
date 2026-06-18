@@ -15,7 +15,7 @@ class OpenRouterService:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
             "HTTP-Referer": "http://localhost:5173",
-            "X-Title": "M911 Copilot",
+            "X-Title": "Yazaki Copilot",
         }
 
     def _friendly_error(self, status_code: int, detail: str) -> str:
@@ -113,13 +113,12 @@ class OpenRouterService:
 
     async def generate_answer(self, question: str, context: str) -> str:
         """Drop-in replacement for GroqService.generate_answer — same signature."""
-        # Context short karo — same as Groq service mein tha
         context_lines = context.split('\n')
         short_context = '\n'.join(context_lines[:40])
 
-        system_prompt = """You are M911 Copilot, AI assistant for Metaverse911.
-Answer ONLY from the context provided.
-If not in context, say: "I couldn't find that in Metaverse911 resources."
+        system_prompt = """You are Yazaki Copilot, an AI assistant for Yazaki India.
+Answer ONLY from the context provided, which is based on the Yazaki Domestic Travel Policy.
+If the answer is not found in the context, say: "I'm sorry, I couldn't find that in the Yazaki Domestic Travel Policy. Please contact the HR department for assistance."
 Be concise and professional."""
 
         user_message = f"""Context:
